@@ -3,8 +3,10 @@
  * Visible by default, toggleable with Ctrl+B or F2.
  * Supports number keys 1-9 for quick selection.
  */
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Box, Text, useInput } from "ink";
+import * as fs from "node:fs";
+import * as path from "node:path";
 import {
   CATEGORIES,
   getCommandsByCategory,
@@ -135,6 +137,40 @@ export function Sidebar({
         <Text color={theme.textDim}>1-9 quick select</Text>
         <Text color={theme.textDim}>Ctrl+B/F2 toggle sidebar</Text>
       </Box>
+
+      {/* File context: @-mentionable files */}
+      <FileContext theme={theme} />
+    </Box>
+  );
+}
+
+function FileContext({ theme }: { theme: Theme }) {
+  const [files, setFiles] = useState<string[]>([]);
+
+  useEffect(() => {
+    try {
+      const entries = fs.readdirSync(process.cwd(), { withFileTypes: true });
+      const fileList = entries
+        .filter((e) => e.isFile() || e.isDirectory())
+        .map((e) => (e.isDirectory() ? `📁 ${e.name}/` : `📄 ${e.name}`))
+        .slice(0, 10);
+      setFiles(fileList);
+    } catch {
+      setFiles(["(cannot read directory)"]);
+    }
+  }, []);
+
+  return (
+    <Box flexDirection="column" marginTop={1}>
+      <Text color={theme.textDim}>────────────────────────────</Text>
+      <Text bold color={theme.sidebarHeader}>
+        📎 Files (use @ to mention)
+      </Text>
+      {files.map((f, i) => (
+        <Text key={i} color={theme.textDim}>
+          {f}
+        </Text>
+      ))}
     </Box>
   );
 }
