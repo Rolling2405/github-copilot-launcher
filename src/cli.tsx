@@ -17,19 +17,19 @@ const args = process.argv.slice(2);
 
 if (args.includes("--help") || args.includes("-h")) {
   console.log(`
-copilot-tui — A visual companion for GitHub Copilot CLI
+copilot-launcher — A visual command menu for GitHub Copilot CLI
 
 Usage:
-  copilot-tui            Start the launcher TUI
-  copilot-tui --help     Show this help message
-  copilot-tui --version  Show version
+  copilot-launcher            Start the launcher menu
+  copilot-launcher --help     Show this help message
+  copilot-launcher --version  Show version
 
 How it works:
-  1. copilot-tui shows a sidebar with all 45+ copilot commands
+  1. The launcher shows a sidebar with all 45+ copilot commands
   2. Browse commands by category, search with Ctrl+K
   3. Pick a command or type your own message, press Enter
-  4. Copilot launches with full terminal control
-  5. When copilot exits, copilot-tui returns for another round
+  4. Copilot launches with full terminal control (the real thing)
+  5. When copilot exits, the launcher returns for another round
 
 Keyboard Shortcuts (in the launcher):
   Tab           Cycle panels (sidebar → chat → input)
@@ -40,14 +40,14 @@ Keyboard Shortcuts (in the launcher):
   1-9           Quick-select sidebar commands (when sidebar focused)
   Ctrl+C        Exit
 
-copilot-tui wraps no features — copilot gets full terminal control.
+copilot-launcher wraps no features — copilot gets full terminal control.
 All copilot features work exactly the same — just easier to discover.
 `);
   process.exit(0);
 }
 
 if (args.includes("--version") || args.includes("-v")) {
-  console.log("copilot-tui v0.1.0");
+  console.log("github-copilot-launcher v0.1.0");
   process.exit(0);
 }
 
@@ -118,7 +118,7 @@ async function main(): Promise<void> {
 
     await launchCopilot(command || undefined);
 
-    console.log("\n✨ Copilot session ended. Returning to copilot-tui...\n");
+    console.log("\n✨ Copilot session ended. Returning to launcher...\n");
     // Brief pause so the user can read the message
     await new Promise((r) => setTimeout(r, 1500));
   }

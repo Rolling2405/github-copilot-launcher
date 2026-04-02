@@ -24,7 +24,7 @@ export function StatusBar({
     <Box paddingX={1} justifyContent="space-between">
       <Box gap={2}>
         <Text bold color={theme.sidebarHeader}>
-          copilot-tui
+          copilot-launcher
         </Text>
         <Text color={theme.textDim}>
           {status === "disconnected" ? "Ready to launch" : status}

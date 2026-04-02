@@ -1,11 +1,11 @@
 {
-  "name": "copilot-tui",
+  "name": "github-copilot-launcher",
   "version": "0.1.0",
-  "description": "A visual TUI wrapper for GitHub Copilot CLI — making it easier and more accessible without losing any functionality",
+  "description": "A visual command menu for GitHub Copilot CLI — browse, search, and launch any copilot command without memorizing a thing",
   "type": "module",
   "main": "dist/cli.js",
   "bin": {
-    "copilot-tui": "dist/cli.js"
+    "copilot-launcher": "dist/cli.js"
   },
   "scripts": {
     "build": "tsup",
@@ -17,11 +17,12 @@
   "keywords": [
     "copilot",
     "cli",
-    "tui",
+    "launcher",
+    "menu",
     "terminal",
     "github",
     "ai",
-    "accessibility"
+    "command-discovery"
   ],
   "author": "Rolling2405",
   "license": "MIT",

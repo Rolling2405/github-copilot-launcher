@@ -1,4 +1,4 @@
-# Contributing to copilot-tui
+# Contributing to GitHub Copilot Launcher
 
 Thanks for your interest in contributing! Here's how to get started.
 
@@ -25,7 +25,7 @@ Thanks for your interest in contributing! Here's how to get started.
    npm run dev
    ```
 
-5. **Run the TUI:**
+5. **Run the launcher:**
    ```bash
    npm start
    ```
@@ -34,33 +34,39 @@ Thanks for your interest in contributing! Here's how to get started.
 
 ```
 src/
-├── cli.tsx              # Entry point
-├── app.tsx              # Root layout component
+├── cli.tsx              # Entry point (main loop: show menu → launch copilot → repeat)
+├── app.tsx              # Root layout component (sidebar + info panel + input)
 ├── components/
-│   ├── ChatPanel.tsx    # Conversation display
-│   ├── Sidebar.tsx      # Command browser
+│   ├── Sidebar.tsx      # Command browser (45+ commands in 7 categories)
 │   ├── InputBar.tsx     # User input
-│   ├── StatusBar.tsx    # Status display
-│   ├── CommandPalette.tsx # Ctrl+K search
-│   └── WelcomeScreen.tsx  # First-launch tips
+│   ├── StatusBar.tsx    # Status display + key hints
+│   ├── CommandPalette.tsx # Ctrl+K fuzzy search
+│   └── WelcomeScreen.tsx  # First-launch guide
 ├── copilot/
-│   ├── process.ts       # PTY process manager
-│   ├── parser.ts        # Output parser
-│   └── commands.ts      # Command registry
+│   └── commands.ts      # Command registry (all slash commands + descriptions)
 ├── hooks/
-│   ├── useCopilot.ts    # Copilot process hook
 │   ├── useNavigation.ts # Panel navigation
 │   └── useTheme.ts      # Theme management
 └── themes/
     └── themes.ts        # Dark/light theme definitions
 ```
 
+## Architecture
+
+GitHub Copilot CLI is itself a full-screen TUI app (alternate screen buffer, mouse tracking, animated logo, dialog boxes). You **cannot** embed it inside another TUI — it causes rendering conflicts.
+
+The launcher uses a **menu → launch → return** pattern:
+1. Ink renders the command browser
+2. User picks a command and presses Enter
+3. Ink unmounts, copilot spawns with `stdio: 'inherit'` (full terminal control)
+4. When copilot exits, the launcher re-renders
+
 ## Guidelines
 
 - **TypeScript:** All code must be TypeScript with strict mode.
 - **Type-check before submitting:** Run `npm run typecheck`.
-- **Additive only:** Never modify what copilot does — only add visual structure.
-- **Accessibility:** Ensure all features work with keyboard-only navigation.
+- **Launcher only:** Never modify what copilot does — copilot runs natively with full terminal control.
+- **Keyboard-first:** Ensure all features work with keyboard-only navigation.
 
 ## Submitting Changes
 

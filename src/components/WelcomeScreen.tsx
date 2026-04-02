@@ -22,7 +22,7 @@ export function WelcomeScreen({ theme }: WelcomeScreenProps) {
         ╔══════════════════════════════════════════════════╗
       </Text>
       <Text bold color={theme.sidebarHeader}>
-        ║         Welcome to copilot-tui! 🚀              ║
+        ║     GitHub Copilot Launcher 🚀                  ║
       </Text>
       <Text bold color={theme.sidebarHeader}>
         ╚══════════════════════════════════════════════════╝
@@ -30,10 +30,10 @@ export function WelcomeScreen({ theme }: WelcomeScreenProps) {
 
       <Box marginTop={1} flexDirection="column">
         <Text color={theme.text}>
-          A friendlier way to use GitHub Copilot CLI.
+          A visual command menu for GitHub Copilot CLI.
         </Text>
         <Text color={theme.text}>
-          Everything you know still works — just easier to find.
+          Browse all commands, pick one, and copilot launches natively.
         </Text>
       </Box>
 
@@ -42,16 +42,16 @@ export function WelcomeScreen({ theme }: WelcomeScreenProps) {
           Quick Start:
         </Text>
         <Text color={theme.text}>
-          • Just type a message and press Enter
-        </Text>
-        <Text color={theme.text}>
           • Browse commands in the sidebar (left panel)
         </Text>
         <Text color={theme.text}>
           • Press Ctrl+K to search all commands
         </Text>
         <Text color={theme.text}>
-          • Use Tab to switch between panels
+          • Press Enter to launch copilot
+        </Text>
+        <Text color={theme.text}>
+          • When copilot exits, this menu returns
         </Text>
       </Box>
 

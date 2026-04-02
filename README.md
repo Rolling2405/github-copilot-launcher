@@ -1,34 +1,52 @@
-# copilot-tui 🚀
+# GitHub Copilot Launcher 🚀
 
-> A visual TUI wrapper for GitHub Copilot CLI — making it easier and more accessible without losing any functionality.
+> A visual command menu for GitHub Copilot CLI — browse, search, and launch any copilot command without memorizing a thing.
 
-**copilot-tui** wraps the real GitHub Copilot CLI in a beautiful, paneled terminal interface with a sidebar, command palette, and keyboard shortcuts. Think of it as a friendlier front door to the same powerful tool.
+GitHub Copilot CLI is incredibly powerful, but when you launch it you get a blank prompt that says *"Describe a task."* You're expected to already know what commands exist. **GitHub Copilot Launcher** fixes that by giving you a visual menu of all 45+ commands — organized by category, searchable, and one keypress away.
 
-## ✨ Features
+**You don't lose any features.** Copilot launches natively with full terminal control. The launcher is just the friendly front door.
 
-- **📋 Sidebar with all commands** — Browse every slash command organized by category (Code, Session, Models, Agent, Permissions, Help). No memorization needed.
-- **🔍 Command Palette (Ctrl+K)** — Fuzzy search across all commands, just like VS Code.
-- **💬 Chat Panel** — Copilot responses rendered in a clean, scrollable panel with user/copilot message indicators.
-- **🎨 Dark & Light Themes** — Toggle with Ctrl+T. Dark mode by default.
-- **⌨️ 7 Navigation Methods** — Tab, arrow keys, mouse, Ctrl+1/2/3, number keys, auto-focus, scroll wheel. Use whatever feels natural.
-- **🚀 Welcome Screen** — First-launch tips so new users know exactly what to do.
-- **💯 Zero Feature Loss** — Every Copilot CLI feature works exactly the same. We add visual structure, never remove functionality.
+## ✨ What It Does
+
+```
+┌─────────────────────────────────────────────────┐
+│  GitHub Copilot Launcher (browse commands)       │
+│                                                  │
+│  ┌──────────┬──────────────────────────────┐    │
+│  │ Sidebar  │  Info Panel                  │    │
+│  │ 45+ cmds │  (selected command details)  │    │
+│  ├──────────┴──────────────────────────────┤    │
+│  │ Status Bar                              │    │
+│  ├─────────────────────────────────────────┤    │
+│  │ Input Bar                               │    │
+│  └─────────────────────────────────────────┘    │
+│                     │                            │
+│              Press Enter                         │
+│                     ▼                            │
+│  ┌─────────────────────────────────────────┐    │
+│  │  GitHub Copilot CLI (full native TUI)   │    │
+│  │  100% of features, zero compromises     │    │
+│  └─────────────────────────────────────────┘    │
+│                     │                            │
+│          Copilot exits (Ctrl+C)                  │
+│                     ▼                            │
+│           Back to launcher menu                  │
+└─────────────────────────────────────────────────┘
+```
+
+- **📋 Command Sidebar** — All commands organized by category: Code, Session, Models, Agent, Permissions, Help, Other
+- **🔍 Command Palette (Ctrl+K)** — Fuzzy search across all commands, like VS Code
+- **📎 File Context** — Shows files in your current directory for easy reference
+- **🎨 Dark & Light Themes** — Toggle with Ctrl+T
+- **⌨️ Multiple Navigation Methods** — Tab, arrow keys, Ctrl+1/2/3, number keys, whatever feels natural
+- **🚀 Welcome Screen** — First-launch guide so new users know exactly what to do
+- **💯 Zero Feature Loss** — Copilot runs natively. Every feature works exactly the same.
 
 ## 📦 Installation
 
 ### Prerequisites
 - [Node.js](https://nodejs.org/) v20 or later
-- [GitHub Copilot CLI](https://github.com/github/copilot-cli) installed and authenticated
-
-### Install from npm
-```bash
-npm install -g copilot-tui
-```
-
-### Or run directly
-```bash
-npx copilot-tui
-```
+- [GitHub Copilot CLI](https://docs.github.com/en/copilot/github-copilot-in-the-cli) installed and authenticated
 
 ### Build from source
 ```bash
@@ -39,45 +57,41 @@ npm run build
 npm start
 ```
 
+## 🎮 How It Works
+
+1. **Launch** — Run `copilot-launcher` (or `npm start`)
+2. **Browse** — Scroll through 45+ commands in the sidebar, or press **Ctrl+K** to search
+3. **Pick** — Select a command or type your own message
+4. **Enter** — Copilot launches with full terminal control — it's the real thing
+5. **Return** — When you exit copilot, the launcher menu comes back for another round
+
 ## ⌨️ Keyboard Shortcuts
 
 | Shortcut | Action |
 |----------|--------|
-| **Tab** | Cycle panels (sidebar → chat → input) |
-| **Ctrl+1/2/3** | Jump to sidebar / chat / input |
-| **Ctrl+K** | Open command palette |
-| **Ctrl+B** / **F2** | Toggle sidebar |
+| **Enter** | Launch copilot (with selected command or your typed message) |
+| **Tab** | Cycle panels (sidebar → info → input) |
+| **Ctrl+K** | Open command palette (fuzzy search) |
+| **Ctrl+1/2/3** | Jump to sidebar / info / input |
+| **Ctrl+B** / **F2** | Toggle sidebar visibility |
 | **Ctrl+T** | Switch dark/light theme |
 | **1-9** | Quick-select sidebar commands |
-| **↑ ↓** | Navigate within panels / command history |
+| **↑ ↓** | Navigate within panels |
 | **◄ ►** | Switch command categories in sidebar |
-| **Enter** | Send message / select command |
-| **Ctrl+C ×2** | Exit |
+| **Ctrl+C** | Exit |
 
 ## 🏗️ Architecture
 
-```
-┌─────────────────────────────────────────────────┐
-│  copilot-tui (TypeScript + Ink)                 │
-│                                                  │
-│  ┌──────────┬──────────────────────────────┐    │
-│  │ Sidebar  │  Chat Panel                  │    │
-│  │ Commands │  (parsed Copilot output)     │    │
-│  ├──────────┴──────────────────────────────┤    │
-│  │ Status Bar                              │    │
-│  ├─────────────────────────────────────────┤    │
-│  │ Input Bar                               │    │
-│  └─────────────────────────────────────────┘    │
-│         │                  ▲                     │
-│         │ stdin            │ stdout (PTY)        │
-│         ▼                  │                     │
-│  ┌─────────────────────────────────────────┐    │
-│  │  copilot (real CLI — full power)        │    │
-│  └─────────────────────────────────────────┘    │
-└─────────────────────────────────────────────────┘
-```
+GitHub Copilot CLI is itself a full-screen TUI application — it uses an alternate screen buffer, draws its own borders, shows animated logos, and manages its own input. You can't embed it inside another TUI without breaking its rendering.
 
-**Key principle:** copilot-tui spawns the real `copilot` binary as a child process using a pseudo-terminal (PTY). All your input goes directly to copilot. All copilot's output gets parsed and rendered in our panels. Nothing is modified — we just add a visual layer.
+So instead of wrapping copilot, **GitHub Copilot Launcher** acts as a **menu screen** that runs *before* copilot. Think of it like a Start Menu:
+
+1. The launcher renders its own Ink-based UI (sidebar, command palette, etc.)
+2. When you press Enter, the launcher **cleanly exits** and spawns copilot with `stdio: 'inherit'`
+3. Copilot gets **full terminal control** — no rendering conflicts, no feature loss
+4. When copilot exits, the launcher comes back
+
+This is why it works perfectly — copilot is never modified or wrapped. It runs exactly as if you launched it yourself.
 
 ## 🤝 Contributing
 
@@ -89,6 +103,6 @@ Contributions welcome! See [CONTRIBUTING.md](CONTRIBUTING.md) for guidelines.
 
 ## 💡 Why This Exists
 
-GitHub Copilot CLI is an incredibly powerful tool, but its blank terminal prompt can be intimidating for users who aren't comfortable with command lines. copilot-tui makes every feature discoverable through a sidebar and command palette — like putting a dashboard on a race car. Same engine, friendlier controls.
+GitHub Copilot CLI drops you at a blank prompt and expects you to know what to type. That's fine for power users, but intimidating for everyone else. This launcher puts a visual command browser in front of copilot — so you can *discover* features instead of memorizing them.
 
-This project was built as a proof-of-concept to demonstrate that a visual TUI layer could make Copilot CLI more accessible. We've filed a [feature request](https://github.com/github/copilot-cli/issues) proposing that similar functionality be built natively into the CLI.
+We've also filed a [feature request](https://github.com/github/copilot-cli/issues/2489) proposing that similar command discovery be built natively into the CLI.
