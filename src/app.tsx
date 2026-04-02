@@ -1,30 +1,33 @@
 /**
- * App — root component that assembles all panels into the TUI layout.
+ * App — root component.
  *
- * Layout:
- * ┌──────────┬────────────────────────┐
- * │ Sidebar  │ Chat Panel             │
- * │          │                        │
- * │          │                        │
- * ├──────────┴────────────────────────┤
- * │ Status Bar                        │
- * ├───────────────────────────────────┤
- * │ Input Bar                         │
- * └───────────────────────────────────┘
+ * Architecture: copilot-tui is a LAUNCHER + COMPANION.
+ * We show the sidebar and command palette first, then hand off
+ * to copilot with full terminal control. This avoids the
+ * "TUI inside a TUI" conflict since copilot is itself a full-screen app.
+ *
+ * Flow:
+ * 1. Show welcome screen → sidebar with all commands
+ * 2. User browses/selects a command, or just presses Enter
+ * 3. We cleanup Ink, spawn copilot in the foreground
+ * 4. Copilot runs natively with full terminal control
  */
 import React, { useState, useCallback } from "react";
-import { Box, useInput, useApp } from "ink";
-import { ChatPanel } from "./components/ChatPanel.js";
-import { InputBar } from "./components/InputBar.js";
+import { Box, Text, useInput, useApp } from "ink";
 import { Sidebar } from "./components/Sidebar.js";
 import { StatusBar } from "./components/StatusBar.js";
 import { CommandPalette } from "./components/CommandPalette.js";
 import { WelcomeScreen } from "./components/WelcomeScreen.js";
-import { useCopilot } from "./hooks/useCopilot.js";
+import { InputBar } from "./components/InputBar.js";
 import { useNavigation } from "./hooks/useNavigation.js";
 import { useTheme } from "./hooks/useTheme.js";
 
-export function App() {
+interface AppProps {
+  onLaunchCopilot: (initialCommand?: string) => void;
+  onExit: () => void;
+}
+
+export function App({ onLaunchCopilot, onExit }: AppProps) {
   const { exit } = useApp();
   const { theme } = useTheme();
   const {
@@ -35,27 +38,27 @@ export function App() {
     focusInput,
   } = useNavigation();
 
-  const {
-    messages,
-    streamingBuffer,
-    status,
-    errorMessage,
-    sendMessage,
-    sendRaw,
-  } = useCopilot();
-
   const [showPalette, setShowPalette] = useState(false);
   const [showWelcome, setShowWelcome] = useState(true);
-  const [ctrlCCount, setCtrlCCount] = useState(0);
+  const [selectedCommand, setSelectedCommand] = useState<string | null>(null);
 
   // Handle command selection (from sidebar or palette)
   const handleSelectCommand = useCallback(
     (command: string) => {
-      sendMessage(command);
+      setSelectedCommand(command);
       setShowPalette(false);
       focusInput();
     },
-    [sendMessage, focusInput]
+    [focusInput]
+  );
+
+  // Launch copilot (with optional initial command)
+  const handleLaunch = useCallback(
+    (text: string) => {
+      const cmd = text.trim() || selectedCommand || undefined;
+      onLaunchCopilot(cmd);
+    },
+    [selectedCommand, onLaunchCopilot]
   );
 
   // Global key handlers
@@ -72,28 +75,23 @@ export function App() {
       return;
     }
 
-    // Ctrl+C handling: first clears input, second exits
-    if (key.ctrl && input === "c") {
-      if (ctrlCCount >= 1) {
-        sendRaw("\x03");
-        setTimeout(() => exit(), 100);
-        return;
-      }
-      setCtrlCCount((prev) => prev + 1);
-      setTimeout(() => setCtrlCCount(0), 1000);
-      return;
-    }
-
-    // Ctrl+D to exit
-    if (key.ctrl && input === "d") {
-      sendRaw("\x04");
-      setTimeout(() => exit(), 100);
+    // Ctrl+C or Ctrl+D to exit without launching copilot
+    if (key.ctrl && (input === "c" || input === "d")) {
+      onExit();
       return;
     }
 
     // Escape to close palette
     if (key.escape && showPalette) {
       setShowPalette(false);
+      return;
+    }
+
+    // Enter on input panel with no text → launch copilot directly
+    if (key.return && focusedPanel === "input") {
+      // The TextInput onSubmit handles non-empty text.
+      // This handles the empty-text case (just launch copilot).
+      handleLaunch("");
       return;
     }
   });
@@ -119,7 +117,7 @@ export function App() {
 
   return (
     <Box flexDirection="column" height="100%">
-      {/* Main content area: sidebar + chat */}
+      {/* Main content area: sidebar + info panel */}
       <Box flexGrow={1}>
         {sidebarVisible && (
           <Sidebar
@@ -129,27 +127,76 @@ export function App() {
             onRequestFocusInput={focusInput}
           />
         )}
-        <ChatPanel
-          messages={messages}
-          streamingBuffer={streamingBuffer}
-          focused={focusedPanel === "chat"}
-          theme={theme}
-        />
+        <Box
+          flexDirection="column"
+          flexGrow={1}
+          borderStyle="round"
+          borderColor={focusedPanel === "chat" ? theme.borderFocused : theme.border}
+          paddingX={1}
+        >
+          <Text bold color={theme.sidebarHeader}>
+            🚀 Ready to launch Copilot
+          </Text>
+          <Box marginTop={1} flexDirection="column">
+            {selectedCommand ? (
+              <>
+                <Text color={theme.text}>
+                  Selected command: <Text bold color={theme.sidebarItemSelected}>{selectedCommand}</Text>
+                </Text>
+                <Text color={theme.textDim}>
+                  Press Enter to launch copilot with this command.
+                </Text>
+                <Text color={theme.textDim}>
+                  Or type your own message below.
+                </Text>
+              </>
+            ) : (
+              <>
+                <Text color={theme.text}>
+                  Browse commands in the sidebar, or type a message below.
+                </Text>
+                <Text color={theme.text}>
+                  Press Enter to launch copilot.
+                </Text>
+              </>
+            )}
+          </Box>
+          <Box marginTop={1} flexDirection="column">
+            <Text color={theme.textDim}>────────────────────────────────────</Text>
+            <Text bold color={theme.sidebarHeader}>How it works:</Text>
+            <Text color={theme.text}>
+              1. Browse commands here (sidebar + Ctrl+K)
+            </Text>
+            <Text color={theme.text}>
+              2. Pick one or type your own message
+            </Text>
+            <Text color={theme.text}>
+              3. Press Enter → Copilot launches with full terminal control
+            </Text>
+            <Text color={theme.text}>
+              4. When done, copilot-tui returns so you can pick another command
+            </Text>
+          </Box>
+        </Box>
       </Box>
 
       {/* Status bar */}
       <StatusBar
-        status={status}
+        status="disconnected"
         theme={theme}
         sidebarVisible={sidebarVisible}
-        errorMessage={errorMessage}
       />
 
-      {/* Input bar */}
+      {/* Input bar — Enter launches copilot */}
       <InputBar
-        onSubmit={sendMessage}
+        onSubmit={handleLaunch}
         focused={focusedPanel === "input"}
         theme={theme}
+        placeholder={
+          selectedCommand
+            ? `Press Enter to launch with ${selectedCommand}, or type a different message...`
+            : "Type a message for copilot, or press Enter to launch..."
+        }
       />
     </Box>
   );

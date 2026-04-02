@@ -26,9 +26,10 @@ export function InputBar({
 
   const handleSubmit = useCallback(
     (text: string) => {
-      if (text.trim().length === 0) return;
       onSubmit(text);
-      setHistory((prev) => [text, ...prev]);
+      if (text.trim().length > 0) {
+        setHistory((prev) => [text, ...prev]);
+      }
       setHistoryIndex(-1);
       setValue("");
     },
