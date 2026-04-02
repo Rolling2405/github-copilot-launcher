@@ -1,5 +1,5 @@
 /**
- * Theme definitions for copilot-tui
+ * Theme definitions for GitHub Copilot Launcher
  */
 
 export interface Theme {

@@ -1,7 +1,7 @@
 /**
  * App — root component.
  *
- * Architecture: copilot-tui is a LAUNCHER + COMPANION.
+ * Architecture: GitHub Copilot Launcher is a LAUNCHER + COMPANION.
  * We show the sidebar and command palette first, then hand off
  * to copilot with full terminal control. This avoids the
  * "TUI inside a TUI" conflict since copilot is itself a full-screen app.
@@ -174,7 +174,7 @@ export function App({ onLaunchCopilot, onExit }: AppProps) {
               3. Press Enter → Copilot launches with full terminal control
             </Text>
             <Text color={theme.text}>
-              4. When done, copilot-tui returns so you can pick another command
+              4. When done, the launcher returns so you can pick another command
             </Text>
           </Box>
         </Box>
